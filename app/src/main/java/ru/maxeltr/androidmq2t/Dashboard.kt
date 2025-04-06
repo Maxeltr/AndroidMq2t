@@ -18,10 +18,15 @@ import androidx.compose.ui.unit.dp
 
 @Preview(showBackground = true)
 @Composable
-fun Dashboard(modifier: Modifier = Modifier, amount: Int = 6) {
-    Column(modifier = modifier.fillMaxSize()) {
+fun Dashboard(modifier: Modifier = Modifier, amount: Int = 3) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.LightGray),
+        verticalArrangement = Arrangement.Top
+    ) {
         for (i in 0 until amount step 2) {
-            CardRow(modifier, amount = amount, index = i)
+            CardRow(amount = amount, index = i)
         }
     }
 
