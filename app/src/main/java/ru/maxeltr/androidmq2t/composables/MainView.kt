@@ -1,6 +1,5 @@
 package ru.maxeltr.androidmq2t.composables
 
-import android.app.Application
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -40,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ru.maxeltr.androidmq2t.ui.theme.PurpleGrey80
-import ru.maxeltr.androidmq2t.viewmodel.MqttViewModel
 
 @Preview(showBackground = true)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,8 +60,7 @@ fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp)) {
                     // Обработка нажатия на элемент меню
                     println("Clicked on $item")
                     Toast.makeText(context, "Clicked on $item", Toast.LENGTH_SHORT).show()
-                    val mqttViewmodel = MqttViewModel(application = context.applicationContext as Application)
-                    println("mqtt $mqttViewmodel")
+
                     coroutineScope.launch {
                         drawerState.close()
                     }
@@ -95,7 +92,7 @@ fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp)) {
                         }) {
                             Icon(
                                 imageVector = Icons.Filled.Menu,
-                                contentDescription = "Localized description"
+                                contentDescription = "Options"
                             )
                         }
                     },
