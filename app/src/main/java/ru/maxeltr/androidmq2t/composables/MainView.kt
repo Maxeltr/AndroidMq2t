@@ -37,13 +37,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import kotlinx.coroutines.launch
 import ru.maxeltr.androidmq2t.ui.theme.PurpleGrey80
+import androidx.navigation.compose.rememberNavController
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp)) {
+fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp), navController: NavController) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -60,7 +64,7 @@ fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp)) {
                     // Обработка нажатия на элемент меню
                     println("Clicked on $item")
                     Toast.makeText(context, "Clicked on $item", Toast.LENGTH_SHORT).show()
-
+                    navController.navigate("editCardView")
                     coroutineScope.launch {
                         drawerState.close()
                     }
