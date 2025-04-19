@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -25,9 +29,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@Preview(showBackground = true)
 @Composable
-fun Card(data: String = "", name: String = "") {
+fun Card(data: String = "", name: String = "", onSettingsClick: ()-> Unit, onPublishClick: ()-> Unit) {
+    val TAG = "Card"
+
     Box(
         modifier = Modifier.Companion
             .background(Color.Companion.Gray)
@@ -66,6 +71,21 @@ fun Card(data: String = "", name: String = "") {
 
         }
 
+        IconButton(
+            onClick = {
+                onSettingsClick()
+            },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(4.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Settings",
+                tint = Color.White
+            )
+        }
+
         Button(
             shape = RectangleShape,
             modifier = Modifier.Companion
@@ -77,7 +97,9 @@ fun Card(data: String = "", name: String = "") {
                 containerColor = Color.Companion.DarkGray,
                 contentColor = Color.Companion.White
             ),
-            onClick = { /* Действие для кнопки */ }
+            onClick = {
+                onPublishClick()
+            }
         ) {
             Text(
                 fontSize = 10.sp,

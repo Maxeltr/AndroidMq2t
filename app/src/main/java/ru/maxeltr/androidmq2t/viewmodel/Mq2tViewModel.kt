@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -18,6 +19,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import ru.maxeltr.androidmq2t.Model.CardState
 import ru.maxeltr.androidmq2t.R
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 
@@ -38,32 +40,59 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
     }
 
     private fun initCards() {
-        var id: Int = 0
-        var json: String? = sharedPreferences.getString("card_0", null)
-        while (null != json) {
-            val type = object: TypeToken<CardState>() {}.type
-            val cardState: CardState = gson.fromJson(json, type)
-            _cards.add(cardState)
-            json = sharedPreferences.getString("card_$id", null)
-            id++
+
+        if (_cards.isNotEmpty()) {
+            _cards.clear()
         }
+
+        val allEntries = sharedPreferences.all
+        val allCards = allEntries.mapNotNull {entry ->
+            gson.fromJson(entry.value as String, CardState::class.java)
+        }
+        _cards.addAll(allCards)
 
         if (_cards.isEmpty()) {
             val initialCards = List(1) {
                 index -> CardState()
             }
             _cards.addAll(initialCards)
+
+
             Log.i(TAG, "No saved cards in SharedPreferences.")
+        }
+    }
+
+    fun saveCard(cardState: CardState) {
+        val json = gson.toJson(cardState)
+        sharedPreferences.edit() {
+            putString("card_${cardState.id}", json)
+            apply()
+        }
+        initCards()
+        Log.d(TAG, "Saved card in SharedPreferences $json.")
+    }
+
+    fun loadCard(id: Int): CardState {
+        val json = sharedPreferences.getString("card_$id", null)
+        Log.d(TAG, "Load card (provided id=$id) from SharedPreferences $json.")
+        return if (json != null) {
+            gson.fromJson(json, CardState::class.java)
+        } else {
+            CardState()
         }
     }
 
     fun updateCardState(message: Mqtt3Publish) {
         viewModelScope.launch {
+            Log.i(TAG, "Received message $message")
             mutex.withLock {
                 val currentStates = _cards.toList()
                 val updatedStates = currentStates.map { cardState ->
                     if (cardState.subTopic == message.topic.toString()) {
-                        cardState.copy(subData = String(message.payloadAsBytes, Charsets.UTF_8))
+                        cardState.copy(
+                            subData = String(message.payloadAsBytes, Charsets.UTF_8)
+                            //TODO time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss dd.mm.yy"))
+                        )
                     } else {
                         cardState
                     }
@@ -82,14 +111,18 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
 
     }
 
-    fun onButtonClicked(id: Int) {
-        Log.v(TAG, "viewModel button clicked id = $id!.")
+    fun onPublishClick(id: Int) {
+        viewModelScope.launch {
+            Log.v(TAG, "viewModel button clicked id = $id!.")
+        }
     }
 
     override fun onCleared() {      //TODO onDestroy()?
         super.onCleared()
         Log.i(TAG, "Disconnect.")
-        //TODO Add disconnect logic
+        viewModelScope.launch {
+            //TODO Add disconnect logic
+        }
     }
 
     private fun initClient(): Mqtt3AsyncClient {
@@ -104,9 +137,9 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
             .buildAsync()
     }
 
-    private fun connect() {
+    fun connect() {
         viewModelScope.launch {
-
+            Log.i(TAG, "Connecting...")
             mqttClient.toAsync()
                 .connect()
                 .whenComplete { mqtt3ConnAck, throwable ->
@@ -124,17 +157,23 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
     }
 
     private fun subscribe() {
+        Log.d(TAG, "Amount of cards = ${_cards.size}.")
+
+
+
         _cards.forEach {
-            card -> {
+            card ->
+                Log.d(TAG, "Subscribe for card ${card}.")
                 if (card.subTopic.isNotBlank()) {
+                    Log.i(TAG, "Subscribe to topic ${card.subTopic}.")
                     subscribe(
                         card.subTopic,
-                        MqttQos.valueOf(card.subQos)        //TODO check is empty
+                        MqttQos.fromCode(card.subQos) ?: MqttQos.AT_MOST_ONCE
                     ) { mqtt3Publish -> updateCardState(mqtt3Publish) }
                 } else {
                     Log.w(TAG, "Topic is blank for card $card")
                 }
-            }
+
         }
     }
 
@@ -147,7 +186,7 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
                 .callback { mqtt3Publish ->
                     // Process the received message
                     val message = String(mqtt3Publish.payloadAsBytes, Charsets.UTF_8)
-                    Log.v(TAG, " Message received $message from topic ${mqtt3Publish.topic}")
+                    Log.i(TAG, " Message received $message from topic ${mqtt3Publish.topic}")
                     onMessageReceived(mqtt3Publish)
 
                 }

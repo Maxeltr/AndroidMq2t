@@ -13,21 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import ru.maxeltr.androidmq2t.Model.CardState
+import androidx.navigation.NavController
 import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModel
-import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModelFactory
 
-@Preview(showBackground = true)
 @Composable
-fun Dashboard(modifier: Modifier = Modifier) {
+fun Dashboard(modifier: Modifier = Modifier, viewModel: Mq2tViewModel, navController: NavController) {
     val TAG = "Dashboard"
-    val viewModel: Mq2tViewModel = viewModel(factory = Mq2tViewModelFactory(LocalContext.current))
-    val cards = viewModel.cards
-
 
     Column(
         modifier = modifier
@@ -35,17 +27,16 @@ fun Dashboard(modifier: Modifier = Modifier) {
             .background(Color.Companion.LightGray),
         verticalArrangement = Arrangement.Top
     ) {
-        val amount = cards.size
-        Log.v(TAG, "amount = $amount!.")
+        val amount = viewModel.cards.size
         for (i in 0 until amount step 2) {
-            CardRow(amount = amount, index = i, cardStates = cards)
+            CardRow(amount = amount, index = i, viewModel = viewModel, navController = navController)
         }
     }
 
 }
 
 @Composable
-fun CardRow(modifier: Modifier = Modifier, amount: Int, index: Int, cardStates: List<CardState>) {
+fun CardRow(modifier: Modifier = Modifier, amount: Int, index: Int, viewModel: Mq2tViewModel, navController: NavController) {
     Row(
         modifier
             .background(Color.Companion.LightGray)
@@ -59,7 +50,16 @@ fun CardRow(modifier: Modifier = Modifier, amount: Int, index: Int, cardStates: 
                 .padding(8.dp),
 
             ) {
-            Card(cardStates[index].subData, cardStates[index].name)
+            Card(
+                data = viewModel.cards.getOrNull(index)?.subData ?: "",
+                name = viewModel.cards.getOrNull(index)?.name ?: "",
+                onSettingsClick = {
+                    navController.navigate("editCardView/${viewModel.cards.getOrNull(index)?.id ?: "-1"}")    // TODO: If index is out of bounds, consider showing an error message or navigating to a default screen
+                },
+                onPublishClick = {
+                    viewModel.onPublishClick(viewModel.cards.getOrNull(index)?.id ?: -1)        // TODO: If index is out of bounds, consider showing an error message or navigating to a default screen
+                }
+            )
         }
 
         if (index + 1 < amount) {
@@ -68,7 +68,16 @@ fun CardRow(modifier: Modifier = Modifier, amount: Int, index: Int, cardStates: 
                     .weight(1f)
                     .padding(8.dp),
             ) {
-                Card(cardStates[index].subData, cardStates[index].name)
+                Card(
+                    data = viewModel.cards.getOrNull(index + 1)?.subData ?: "",
+                    name = viewModel.cards.getOrNull(index)?.name ?: "",
+                    onSettingsClick = {
+                        navController.navigate("editCardView/${viewModel.cards.getOrNull(index + 1)?.id ?: "-1"}")      // TODO: If index is out of bounds, consider showing an error message or navigating to a default screen
+                    },
+                    onPublishClick = {
+                        viewModel.onPublishClick(viewModel.cards.getOrNull(index + 1)?.id ?: -1)        // TODO: If index is out of bounds, consider showing an error message or navigating to a default screen
+                    }
+                )
             }
         } else {
             Box(

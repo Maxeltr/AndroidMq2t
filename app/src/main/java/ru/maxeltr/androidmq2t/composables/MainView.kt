@@ -1,5 +1,6 @@
 package ru.maxeltr.androidmq2t.composables
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,21 +39,32 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import kotlinx.coroutines.launch
 import ru.maxeltr.androidmq2t.ui.theme.PurpleGrey80
 import androidx.navigation.compose.rememberNavController
+import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModel
+import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModelFactory
 
 //@Preview(showBackground = true)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp), navController: NavController) {
+fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp), navController: NavController, viewModel: Mq2tViewModel) {
+    shcnvgjho0 val TAG = "MainView"
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        if (!viewModel.isConnected()) {
+            Log.i(TAG, "Try to reconnect.")
+            viewModel.connect()
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -64,7 +77,7 @@ fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp), navController: N
                     // Обработка нажатия на элемент меню
                     println("Clicked on $item")
                     Toast.makeText(context, "Clicked on $item", Toast.LENGTH_SHORT).show()
-                    navController.navigate("editCardView")
+
                     coroutineScope.launch {
                         drawerState.close()
                     }
@@ -115,7 +128,7 @@ fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp), navController: N
                 )
             },
         ) { innerPadding ->
-            Dashboard(modifier = Modifier.padding(innerPadding))
+            Dashboard(modifier = Modifier.padding(innerPadding), viewModel, navController)
         }
     }
 }
