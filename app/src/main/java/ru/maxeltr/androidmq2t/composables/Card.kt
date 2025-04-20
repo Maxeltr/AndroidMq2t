@@ -48,16 +48,6 @@ fun Card(data: String = "", name: String = "", onSettingsClick: ()-> Unit, onPub
                 .fillMaxHeight(),
         ) {
             Text(
-                text = data,
-                modifier = Modifier.Companion
-                    .wrapContentSize()
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Companion.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Companion.Ellipsis
-            )
-            Spacer(modifier = Modifier.Companion.height(16.dp))
-            Text(
                 text = name,
                 modifier = Modifier.Companion
                     .wrapContentSize()
@@ -67,8 +57,16 @@ fun Card(data: String = "", name: String = "", onSettingsClick: ()-> Unit, onPub
                 overflow = TextOverflow.Companion.Ellipsis
             )
             Spacer(modifier = Modifier.Companion.height(16.dp))
-
-
+            Text(
+                text = data,
+                modifier = Modifier.Companion
+                    .wrapContentSize()
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Companion.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Companion.Ellipsis
+            )
+            Spacer(modifier = Modifier.Companion.height(16.dp))
         }
 
         IconButton(

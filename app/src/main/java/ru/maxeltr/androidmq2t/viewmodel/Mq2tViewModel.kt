@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,6 +15,8 @@ import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -32,11 +35,13 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
 
     private val _cards = mutableStateListOf<CardState> ()
     val cards: List<CardState> get() = _cards
-
+    var isConnected = mutableStateOf(false)
+        private set
 
     init {
         initCards()
         connect()
+        startMonitoringConnection()
     }
 
     private fun initCards() {
@@ -138,7 +143,7 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
     }
 
     fun connect() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             Log.i(TAG, "Connecting...")
             mqttClient.toAsync()
                 .connect()
@@ -178,7 +183,7 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
     }
 
     private fun subscribe(topic: String, qos: MqttQos, onMessageReceived: (Mqtt3Publish) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             mqttClient.toAsync()
                 .subscribeWith()
                 .topicFilter(topic)
@@ -205,7 +210,21 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
         }
     }
 
-    fun isConnected() = mqttClient.state.isConnected
+    fun refreshConnectivity() {
+        if (!mqttClient.state.isConnected) {
+            Log.i(TAG, "Try to reconnect.")
+            connect()
+        }
+        isConnected.value = mqttClient.state.isConnected == true
+    }
 
+    private fun startMonitoringConnection() {
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                refreshConnectivity()
+                delay(10000)
+            }
+        }
+    }
 
 }
