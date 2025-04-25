@@ -27,17 +27,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import ru.maxeltr.androidmq2t.Model.CardState
+import ru.maxeltr.androidmq2t.R
+import ru.maxeltr.androidmq2t.utils.IdGenerator
 import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModel
-
 
 @Composable
 fun EditCardView(id: Int, viewModel: Mq2tViewModel, navController: NavController) {
-    val card: MutableState<CardState> = remember {mutableStateOf(viewModel.loadCard(id))}
-    //TODO show error message instead setting default values
+    val context = LocalContext.current
+    val idGenerator = remember { IdGenerator(context) }
+    //val card: MutableState<CardState> = remember {mutableStateOf(viewModel.loadCardFromPreferences(id))}
+    val card: MutableState<CardState> = remember {mutableStateOf(viewModel.getCardById(id))}
+
+    val idState = remember { mutableStateOf(card.value.id) }
     val nameState = remember { mutableStateOf(card.value.name) }
     val subTopicState = remember { mutableStateOf(card.value.subTopic) }
     val subQosState = remember { mutableIntStateOf(card.value.subQos) }
@@ -46,8 +53,29 @@ fun EditCardView(id: Int, viewModel: Mq2tViewModel, navController: NavController
     val pubQosState = remember { mutableIntStateOf(card.value.pubQos) }
     val pubRetainState = remember { mutableStateOf(card.value.pubRetain == true) }
 
-    if (id != card.value.id) {
-        throw IllegalArgumentException("The provided id ($id) does not match the card id (${card.value.id}).")
+    if (idState.value == -1) {
+        idState.value = idGenerator.generateId()
+    }
+
+    val onSave = {
+        //TODO viewModel.unsubscribe(card.value.subTopic)
+        card.value = card.value.copy(
+            id = idState.value,
+            name = nameState.value,
+            subTopic = subTopicState.value,
+            subQos = subQosState.intValue,
+            pubTopic = pubTopicState.value,
+            pubData = pubDataState.value,
+            pubQos = pubQosState.intValue,
+            pubRetain = pubRetainState.value
+        )
+        viewModel.saveCardInPreferences(card.value)
+        viewModel.subscribe(subTopicState.value, subQosState.intValue)
+        navController.popBackStack()
+    }
+
+    val onCancel = {
+        navController.popBackStack()
     }
 
     EditCardForm(
@@ -58,22 +86,8 @@ fun EditCardView(id: Int, viewModel: Mq2tViewModel, navController: NavController
         pubDataState = pubDataState,
         pubQosState = pubQosState,
         pubRetainState = pubRetainState,
-        onSave = {
-            card.value = card.value.copy(
-                name = nameState.value,
-                subTopic = subTopicState.value,
-                subQos = subQosState.value,
-                pubTopic = pubTopicState.value,
-                pubData = pubDataState.value,
-                pubQos = pubQosState.value,
-                pubRetain = pubRetainState.value
-            )
-            viewModel.saveCard(card.value)
-            navController.popBackStack()
-        },
-        onCancel = {
-            navController.popBackStack()
-        },
+        onSave = { onSave() },
+        onCancel = { onCancel() }
     )
 
 
@@ -103,7 +117,7 @@ fun EditCardForm(
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = "Card settings")
+            Text(text = stringResource(R.string.card_settings))
 
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
@@ -112,12 +126,12 @@ fun EditCardForm(
                     nameState.value = newValue
                 },
                 label = {
-                    Text("Card name")
+                    Text(stringResource(R.string.card_name))
                 }
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Subscription settings")
+            //Spacer(modifier = Modifier.height(8.dp))
+            //Text(text = "Subscription settings")
 
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
@@ -126,7 +140,7 @@ fun EditCardForm(
                     subTopicState.value = newValue
                 },
                 label = {
-                    Text("Subscription topic")
+                    Text(stringResource(R.string.subscription_topic))
                 }
             )
 
@@ -163,8 +177,8 @@ fun EditCardForm(
 
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Publication settings")
+            //Spacer(modifier = Modifier.height(8.dp))
+            //Text(text = "Publication settings")
 
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
@@ -173,7 +187,7 @@ fun EditCardForm(
                     pubTopicState.value = newValue
                 },
                 label = {
-                    Text("Publication topic")
+                    Text(stringResource(R.string.publication_topic))
                 }
             )
 
@@ -184,7 +198,7 @@ fun EditCardForm(
                     pubDataState.value = newValue
                 },
                 label = {
-                    Text("Publication data")
+                    Text(stringResource(R.string.publication_data))
                 }
             )
 
@@ -223,7 +237,7 @@ fun EditCardForm(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Retain")
+                Text(text = stringResource(R.string.retain))
                 Checkbox(
                     checked = pubRetainState.value,
                     onCheckedChange = { newValue ->
@@ -241,7 +255,7 @@ fun EditCardForm(
                     onClick = {
                         onSave()
                     }) {
-                    Text("Save")
+                    Text(stringResource(R.string.save))
                 }
 
                 //Spacer(modifier = Modifier.height(8.dp))
@@ -249,7 +263,7 @@ fun EditCardForm(
                     onClick = {
                         onCancel()
                     }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
 

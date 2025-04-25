@@ -16,6 +16,8 @@ import androidx.navigation.compose.rememberNavController
 import ru.maxeltr.androidmq2t.composables.EditCardView
 import ru.maxeltr.androidmq2t.composables.MainView
 import ru.maxeltr.androidmq2t.ui.theme.AndroidMq2tTheme
+import ru.maxeltr.androidmq2t.composables.EditConnectionView
+import ru.maxeltr.androidmq2t.composables.FullScreenView
 import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModel
 import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModelFactory
 
@@ -26,15 +28,23 @@ class MainActivity : ComponentActivity() {
         setContent {
             AndroidMq2tTheme {
                 val navController = rememberNavController()
-                val viewModel: Mq2tViewModel = viewModel(factory = Mq2tViewModelFactory(LocalContext.current))
+                val viewModel: Mq2tViewModel =
+                    viewModel(factory = Mq2tViewModelFactory(LocalContext.current))
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(navController = navController, startDestination = "mainView") {
                         composable("mainView") {
-                            MainView(innerPadding, navController, viewModel)
+                            MainView(innerPadding, viewModel, navController)
                         }
                         composable("editCardView/{id}") { backStackEntry ->
-                            val id = backStackEntry.arguments?.getString("id")?.toInt() ?: 0
+                            val id = backStackEntry.arguments?.getString("id")?.toInt() ?: -1
                             EditCardView(id = id, viewModel, navController)
+                        }
+                        composable("editConnectionView") {
+                            EditConnectionView(viewModel, navController)
+                        }
+                        composable("fullScreenView/{id}") { backStackEntry ->
+                            val id = backStackEntry . arguments ?. getString ("id")?.toInt() ?: -1
+                            FullScreenView(id = id, viewModel, navController)
                         }
                     }
 

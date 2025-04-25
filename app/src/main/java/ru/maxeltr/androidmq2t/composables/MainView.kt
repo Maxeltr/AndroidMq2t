@@ -3,7 +3,7 @@ package ru.maxeltr.androidmq2t.composables
 import android.app.Application
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
+import ru.maxeltr.androidmq2t.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,54 +60,60 @@ import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp), navController: NavController, viewModel: Mq2tViewModel) {
+fun MainView(
+    innerPadding: PaddingValues = PaddingValues(0.dp),
+    viewModel: Mq2tViewModel,
+    navController: NavController
+) {
     val TAG = "MainView"
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val context = LocalContext.current
     val isConnected = viewModel.isConnected.value
+    val newCardString = stringResource(R.string.new_card)
+    val connectionSettingsString = stringResource(R.string.connection_settings)
 
-    LaunchedEffect(Unit) {
-        viewModel.refreshConnectivity()
-    }
+//    LaunchedEffect(Unit) {
+//        viewModel.refreshConnectivityState()
+//    }
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val observer = rememberUpdatedState { event: Lifecycle.Event ->
-        if (event == Lifecycle.Event.ON_RESUME) {
-            // Обновление данных при возвращении на экран
-            if (isConnected) {
-                Log.i(TAG, "Try to reconnect.")
-                viewModel.connect()
-            }
-        }
-    }
+//    val lifecycleOwner = LocalLifecycleOwner.current
+//    val observer = rememberUpdatedState { event: Lifecycle.Event ->
+//        if (event == Lifecycle.Event.ON_RESUME) {
+//            if (!isConnected) {
+//                Log.i(TAG, "State is disconnected on resume event. Try to reconnect.")
+//                viewModel.connect()
+//            }
+//        }
+//    }
 
-    DisposableEffect(lifecycleOwner) {
-        val lifecycleObserver = LifecycleEventObserver { _, event ->
-            observer.value(event)
-        }
-        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
-        }
-
-    }
+//    DisposableEffect(lifecycleOwner) {
+//        val lifecycleObserver = LifecycleEventObserver { _, event ->
+//            observer.value(event)
+//        }
+//        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+//        onDispose {
+//            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+//        }
+//
+//    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            Column(modifier = Modifier
-                .requiredWidth(250.dp)
-                .fillMaxHeight()
+            Column(
+                modifier = Modifier
+                    .requiredWidth(250.dp)
+                    .fillMaxHeight()
             ) {
                 DrawerContent { item ->
-                    // Обработка нажатия на элемент меню
-                    println("Clicked on $item")
-                    Toast.makeText(context, "Clicked on $item", Toast.LENGTH_SHORT).show()
-
                     coroutineScope.launch {
                         drawerState.close()
+                    }
+                    when (item) {
+                        newCardString -> navController.navigate("editCardView/-1")
+                        connectionSettingsString -> {navController.navigate("editConnectionView")}
                     }
                 }
             }
@@ -122,7 +129,7 @@ fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp), navController: N
                     ),
                     title = {
                         Text(
-                            "Mq2t",
+                            stringResource(R.string.app_name),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             color = PurpleGrey80
@@ -136,22 +143,24 @@ fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp), navController: N
                         }) {
                             Icon(
                                 imageVector = Icons.Filled.Menu,
-                                contentDescription = "Options"
+                                contentDescription = stringResource(R.string.settings)
                             )
                         }
                     },
                     actions = {
                         IconButton(onClick = {
-                            viewModel.refreshConnectivity()
+                            viewModel.refreshConnectivityState()
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
-                                contentDescription = "Add"
+                                contentDescription = stringResource(R.string.add)
                             )
                         }
                         Icon(
                             imageVector = if (isConnected) Icons.Default.Check else Icons.Default.Warning,
-                            contentDescription = if (isConnected) "Online" else "Offline"
+                            contentDescription = if (isConnected) stringResource(R.string.online) else stringResource(
+                                R.string.offline
+                            )
                         )
                     },
                     scrollBehavior = scrollBehavior,
@@ -165,18 +174,22 @@ fun MainView(innerPadding: PaddingValues = PaddingValues(0.dp), navController: N
 
 @Composable
 fun DrawerContent(onItemClick: (String) -> Unit) {
+    val connectionSettingsString = stringResource(R.string.connection_settings)
+    val newCardString = stringResource(R.string.new_card)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.LightGray)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(32.dp))
         TextButton(
             onClick = {
-                onItemClick("Item 1")
+                onItemClick(newCardString)
             }
         ) {
-            Text("Item______________1",
+            Text(
+                stringResource(R.string.new_card),
                 modifier = Modifier
                     .wrapContentSize()
                     .fillMaxWidth(),
@@ -188,10 +201,11 @@ fun DrawerContent(onItemClick: (String) -> Unit) {
         }
         TextButton(
             onClick = {
-                onItemClick("Item 2")
+                onItemClick(connectionSettingsString)
             }
         ) {
-            Text("Item  d  2",
+            Text(
+                stringResource(R.string.connection_settings),
                 modifier = Modifier
                     .wrapContentSize()
                     .fillMaxWidth(),
@@ -201,20 +215,6 @@ fun DrawerContent(onItemClick: (String) -> Unit) {
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        TextButton(
-            onClick = {
-                onItemClick("Item 3")
-            }
-        ) {
-            Text("Item                              3",
-                modifier = Modifier
-                    .wrapContentSize()
-                    .fillMaxWidth(),
-                color = Color.Black,
-                textAlign = TextAlign.Left,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
+
     }
 }
