@@ -55,7 +55,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
-import ru.maxeltr.androidmq2t.ui.theme.PurpleGrey80
+import ru.maxeltr.androidmq2t.ui.theme.DarkGray
 import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -132,7 +132,7 @@ fun MainView(
                             stringResource(R.string.app_name),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            color = PurpleGrey80
+                            color = DarkGray
                         )
                     },
                     navigationIcon = {
