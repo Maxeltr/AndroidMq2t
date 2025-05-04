@@ -31,7 +31,7 @@ fun Dashboard(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .background(Color.Companion.LightGray),
+            .background(Color.LightGray),
         verticalArrangement = Arrangement.Top
     ) {
         val amount = viewModel.cards.size
@@ -57,13 +57,13 @@ fun CardRow(
 ) {
     Row(
         modifier
-            .background(Color.Companion.LightGray)
+            .background(Color.LightGray)
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.Companion.Top
+        verticalAlignment = Alignment.Top
     ) {
         Box(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .weight(1f)
                 .padding(8.dp),
 
@@ -91,7 +91,7 @@ fun CardRow(
 
         if (index + 1 < amount) {
             Box(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .weight(1f)
                     .padding(8.dp),
             ) {
@@ -117,7 +117,7 @@ fun CardRow(
             }
         } else {
             Box(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .weight(1f)
                     .padding(8.dp)
             )

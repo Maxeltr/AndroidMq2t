@@ -31,7 +31,10 @@ class MainActivity : ComponentActivity() {
                 val viewModel: Mq2tViewModel =
                     viewModel(factory = Mq2tViewModelFactory(LocalContext.current))
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    NavHost(navController = navController, startDestination = "mainView") {
+                    NavHost(
+                        navController = navController,
+                        startDestination = "mainView"
+                    ) {
                         composable("mainView") {
                             MainView(innerPadding, viewModel, navController)
                         }

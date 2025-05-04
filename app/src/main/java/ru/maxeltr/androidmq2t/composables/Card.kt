@@ -2,6 +2,7 @@ package ru.maxeltr.androidmq2t.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -57,8 +58,8 @@ fun Card(
     var expanded by remember { (mutableStateOf(false)) }
 
     Box(
-        modifier = Modifier.Companion
-            .background(Color.Companion.Gray)
+        modifier = Modifier
+            .background(Color.Gray)
             .height(150.dp)
             .fillMaxWidth()
             .pointerInput(Unit) {
@@ -73,87 +74,81 @@ fun Card(
             }
     ) {
         Column(
-            modifier = Modifier.Companion
-                .align(Alignment.Companion.TopCenter)
+            modifier = Modifier
+                .align(Alignment.TopCenter)
                 .padding(8.dp)
                 .fillMaxWidth()
                 .fillMaxHeight(),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = name,
-                modifier = Modifier.Companion
-                    .wrapContentSize()
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Companion.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Companion.Ellipsis
-            )
-            Spacer(modifier = Modifier.Companion.height(16.dp))
-            Text(
-                text = data,
-                modifier = Modifier.Companion
-                    .wrapContentSize()
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Companion.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Companion.Ellipsis
-            )
-            Spacer(modifier = Modifier.Companion.height(16.dp))
-        }
-
-//        IconButton(
-//            onClick = {
-//                onSettingsClick()
-//            },
-//            modifier = Modifier
-//                .align(Alignment.TopEnd)
-//                .padding(4.dp)
-//        ) {
-//            Icon(
-//                imageVector = Icons.Default.Settings,
-//                contentDescription = settingsString,
-//                tint = Color.White
-//            )
-//        }
-
-        Button(
-            shape = RectangleShape,
-            modifier = Modifier.Companion
-                .width(80.dp)
-                .height(30.dp)
-                .align(Alignment.Companion.BottomCenter)
-                .offset(y = (-8).dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Companion.DarkGray,
-                contentColor = Color.Companion.White
-            ),
-            onClick = {
-                onPublishClick()
-            }
-        ) {
-            Text(
-                fontSize = 10.sp,
-                text = publishString,
-
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = name,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.White
                 )
-        }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = data,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = time,
+                    fontSize = 10.sp,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.White
+                )
 
-        Text(
-            text = time,
-            fontSize = 10.sp,
-            modifier = Modifier.Companion
-                .wrapContentSize()
-                .fillMaxWidth(),
-            textAlign = TextAlign.Companion.Center,
-            maxLines = 1,
-            overflow = TextOverflow.Companion.Ellipsis
-        )
+            }
+
+            Button(
+                shape = RectangleShape,
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(30.dp)
+                    .align(Alignment.CenterHorizontally),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.DarkGray,
+                    contentColor = Color.White
+                ),
+                onClick = {
+                    onPublishClick()
+                }
+            ) {
+                Text(
+                    fontSize = 10.sp,
+                    text = publishString,
+
+                    )
+            }
+        }
 
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = {
                 expanded = false
-            }
+            },
+            modifier = Modifier
+                .background(Color.DarkGray),
         ) {
             DropdownMenuItem(
                 onClick = {
@@ -161,7 +156,10 @@ fun Card(
                     expanded = false
                 },
                 text = {
-                    Text(text = editString)
+                    Text(
+                        text = editString,
+                        color = Color.White
+                    )
                 }
             )
             DropdownMenuItem(
@@ -170,7 +168,10 @@ fun Card(
                     expanded = false
                 },
                 text = {
-                    Text(text = deleteString)
+                    Text(
+                        text = deleteString,
+                        color = Color.White
+                    )
                 }
             )
         }

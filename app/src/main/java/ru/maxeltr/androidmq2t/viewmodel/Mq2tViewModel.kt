@@ -40,7 +40,7 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
         application.getSharedPreferences("Mq2tPreferences", Context.MODE_PRIVATE)
     private var mqttClient: Mqtt3Client = initClient()
     private val calendar = Calendar.getInstance()
-    private val dateFormat = SimpleDateFormat("HH:mm:ss dd.MM.yy", Locale.getDefault())
+    private val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
     private val _cards = mutableStateListOf<CardState>()
     val cards: List<CardState> get() = _cards

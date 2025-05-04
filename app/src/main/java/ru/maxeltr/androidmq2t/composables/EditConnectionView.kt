@@ -1,5 +1,6 @@
 package ru.maxeltr.androidmq2t.composables
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -18,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -70,72 +73,77 @@ fun EditConnectionForm(
     onCancel: () -> Unit
 ) {
     Box(
-        modifier = Modifier.Companion.fillMaxHeight(),
-        contentAlignment = Alignment.Companion.Center
+        modifier = Modifier
+            .fillMaxHeight()
+            .background(Color.Gray),
+        contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-            horizontalAlignment = Alignment.Companion.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = stringResource(R.string.connection_settings))
+            Text(
+                text = stringResource(R.string.connection_settings),
+                color = Color.White
+            )
 
-            Spacer(modifier = Modifier.Companion.height(8.dp))
-            TextField(
+            Spacer(modifier = Modifier.height(8.dp))
+            Mq2tTextField(
                 value = host.value,
                 onValueChange = { newValue ->
                     host.value = newValue
                 },
-                label = {
-                    Text(stringResource(R.string.host))
-                }
+                label = stringResource(R.string.host)
             )
 
-            Spacer(modifier = Modifier.Companion.height(8.dp))
-            TextField(
+            Spacer(modifier = Modifier.height(8.dp))
+            Mq2tTextField(
                 value = port.value,
                 onValueChange = { newValue ->
                     port.value = newValue
                 },
-                label = {
-                    Text(stringResource(R.string.port))
-                }
+                label = stringResource(R.string.port)
             )
 
-            Spacer(modifier = Modifier.Companion.height(8.dp))
-            TextField(
+            Spacer(modifier = Modifier.height(8.dp))
+            Mq2tTextField(
                 value = username.value,
                 onValueChange = { newValue ->
                     username.value = newValue
                 },
-                label = {
-                    Text(stringResource(R.string.username))
-                }
+                label = stringResource(R.string.username)
             )
 
-            Spacer(modifier = Modifier.Companion.height(8.dp))
-            TextField(
+            Spacer(modifier = Modifier.height(8.dp))
+            Mq2tTextField(
                 value = password.value,
                 onValueChange = { newValue ->
                     password.value = newValue
                 },
-                label = {
-                    Text(stringResource(R.string.password))
-                }
+                label = stringResource(R.string.password)
             )
 
             Row(
-                modifier = Modifier.Companion.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Companion.DarkGray,
+                        contentColor = Color.Companion.White
+                    ),
                     onClick = {
                         onSave()
                     }) {
                     Text(stringResource(R.string.save))
                 }
                 Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Companion.DarkGray,
+                        contentColor = Color.Companion.White
+                    ),
                     onClick = {
                         onCancel()
                     }) {

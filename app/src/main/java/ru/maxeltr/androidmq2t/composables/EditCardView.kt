@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -49,6 +52,7 @@ fun EditCardView(id: Int, viewModel: Mq2tViewModel, navController: NavController
     val nameState = remember { mutableStateOf(card.value.name) }
     val subTopicState = remember { mutableStateOf(card.value.subTopic) }
     val subQosState = remember { mutableIntStateOf(card.value.subQos) }
+    val subJsonpathState = remember { mutableStateOf(card.value.subJsonpath) }
     val pubTopicState = remember { mutableStateOf(card.value.pubTopic) }
     val pubDataState = remember { mutableStateOf(card.value.pubData) }
     val pubQosState = remember { mutableIntStateOf(card.value.pubQos) }
@@ -65,6 +69,7 @@ fun EditCardView(id: Int, viewModel: Mq2tViewModel, navController: NavController
             name = nameState.value,
             subTopic = subTopicState.value,
             subQos = subQosState.intValue,
+            subJsonpath = subJsonpathState.value,
             pubTopic = pubTopicState.value,
             pubData = pubDataState.value,
             pubQos = pubQosState.intValue,
@@ -83,6 +88,7 @@ fun EditCardView(id: Int, viewModel: Mq2tViewModel, navController: NavController
         nameState = nameState,
         subTopicState = subTopicState,
         subQosState = subQosState,
+        subJsonpathState = subJsonpathState,
         pubTopicState = pubTopicState,
         pubDataState = pubDataState,
         pubQosState = pubQosState,
@@ -99,6 +105,7 @@ fun EditCardForm(
     nameState: MutableState<String>,
     subTopicState: MutableState<String>,
     subQosState: MutableState<Int>,
+    subJsonpathState: MutableState<String>,
     pubTopicState: MutableState<String>,
     pubDataState: MutableState<String>,
     pubQosState: MutableState<Int>,
@@ -106,17 +113,16 @@ fun EditCardForm(
     onSave: () -> Unit,
     onCancel: () -> Unit
 ) {
-    val expandedSubQos = remember { mutableStateOf(false) }
-    val expandedPubQos = remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
-            .background(Color.Companion.Gray)
-            .fillMaxHeight(),
+            .fillMaxHeight()
+            .background(Color.Gray),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -145,45 +151,17 @@ fun EditCardForm(
             )
 
             Spacer(modifier = Modifier.height(8.dp))
+            Mq2tTextField(
+                subJsonpathState.value,
+                onValueChange = { newValue ->
+                    subJsonpathState.value = newValue
+                },
+                label = stringResource(R.string.subscription_jsonpath)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
             Box() {
                 Mq2tDropdownQosMenu(subQosState, "Subscription QoS", "Qos")
-//                Row(verticalAlignment = Alignment.CenterVertically) {
-//                    Text(
-//                        text = "Subscription QoS ${subQosState.value} ",
-//                        color = Color.White
-//                    )
-//                    Box() {
-//                        Icon(
-//                            imageVector = Icons.Filled.ArrowDropDown,
-//                            contentDescription = "Dropdown Arrow",
-//                            modifier = Modifier
-//                                .clickable { expandedSubQos.value = true }
-//                                .background(Color.Gray),
-//                                tint = Color.White
-//                        )
-//                        DropdownMenu(
-//                            expanded = expandedSubQos.value,
-//                            onDismissRequest = { expandedSubQos.value = false },
-//                            modifier = Modifier.background(Color.Gray)
-//                        ) {
-//                            listOf(0, 1, 2).forEach { qos ->
-//                                DropdownMenuItem(
-//                                    onClick = {
-//                                        subQosState.value = qos
-//                                        expandedSubQos.value = false
-//                                    },
-//                                    text = {
-//                                        Text(
-//                                            text = "QoS $qos",
-//                                            color = Color.White
-//                                        )
-//                                    }
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -206,46 +184,25 @@ fun EditCardForm(
 
             Box() {
                 Mq2tDropdownQosMenu(pubQosState, "Publication QoS", "Qos")
-//                Row(verticalAlignment = Alignment.CenterVertically) {
-//                    Text(text = "Publication QoS ${pubQosState.value} ")
-//                    Box() {
-//                        Icon(
-//                            imageVector = Icons.Filled.ArrowDropDown,
-//                            contentDescription = "Dropdown Arrow",
-//                            modifier = Modifier
-//                                .clickable { expandedPubQos.value = true }
-//                        )
-//                        DropdownMenu(
-//                            expanded = expandedPubQos.value,
-//                            onDismissRequest = { expandedPubQos.value = false },
-//                        ) {
-//                            listOf(0, 1, 2).forEach { qos ->
-//                                DropdownMenuItem(
-//                                    onClick = {
-//                                        pubQosState.value = qos
-//                                        expandedPubQos.value = false
-//                                    },
-//                                    text = {
-//                                        Text(text = "QoS $qos")
-//                                    }
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-
             }
 
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = stringResource(R.string.retain))
+                Text(
+                    text = stringResource(R.string.retain),
+                    color = Color.White)
                 Checkbox(
                     checked = pubRetainState.value,
                     onCheckedChange = { newValue ->
                         pubRetainState.value = newValue
-                    }
+                    },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Color.LightGray,
+                        uncheckedColor = Color.White,
+                        checkmarkColor = Color.White
+                    )
                 )
             }
 
@@ -255,8 +212,8 @@ fun EditCardForm(
             ) {
                 Button(
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Companion.DarkGray,
-                        contentColor = Color.Companion.White
+                        containerColor = Color.DarkGray,
+                        contentColor = Color.White
                     ),
                     onClick = {
                         onSave()
@@ -266,8 +223,8 @@ fun EditCardForm(
 
                 Button(
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Companion.DarkGray,
-                        contentColor = Color.Companion.White
+                        containerColor = Color.DarkGray,
+                        contentColor = Color.White
                     ),
                     onClick = {
                         onCancel()
@@ -286,6 +243,7 @@ fun EditCardViewPreview() {
     val nameState = remember { mutableStateOf("name test value") }
     val subTopicState = remember { mutableStateOf("subTopic/test/value") }
     val subQosState = remember { mutableStateOf(0) }
+    val subJsonpathState = remember { mutableStateOf("sub jsonpath") }
     val pubTopicState = remember { mutableStateOf("pubTopic/test/value") }
     val pubDataState = remember { mutableStateOf("pub test data") }
     val pubQosState = remember { mutableStateOf(0) }
@@ -295,6 +253,7 @@ fun EditCardViewPreview() {
         nameState = nameState,
         subTopicState = subTopicState,
         subQosState = subQosState,
+        subJsonpathState = subJsonpathState,
         pubTopicState = pubTopicState,
         pubDataState = pubDataState,
         pubQosState = pubQosState,

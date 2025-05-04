@@ -132,7 +132,7 @@ fun MainView(
                             stringResource(R.string.app_name),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            color = DarkGray
+                            color = Color.LightGray
                         )
                     },
                     navigationIcon = {
@@ -143,7 +143,8 @@ fun MainView(
                         }) {
                             Icon(
                                 imageVector = Icons.Filled.Menu,
-                                contentDescription = stringResource(R.string.settings)
+                                contentDescription = stringResource(R.string.settings),
+                                tint = Color.LightGray
                             )
                         }
                     },
@@ -153,14 +154,16 @@ fun MainView(
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
-                                contentDescription = stringResource(R.string.add)
+                                contentDescription = stringResource(R.string.add),
+                                tint = Color.LightGray
                             )
                         }
                         Icon(
                             imageVector = if (isConnected) Icons.Default.Check else Icons.Default.Warning,
                             contentDescription = if (isConnected) stringResource(R.string.online) else stringResource(
                                 R.string.offline
-                            )
+                            ),
+                            tint = Color.LightGray
                         )
                     },
                     scrollBehavior = scrollBehavior,

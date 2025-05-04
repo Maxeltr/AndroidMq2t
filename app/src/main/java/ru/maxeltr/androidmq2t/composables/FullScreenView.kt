@@ -1,5 +1,6 @@
 package ru.maxeltr.androidmq2t.composables
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -30,6 +33,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -77,21 +81,38 @@ fun FullScreenForm(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-
+            .padding(16.dp)
+            .background(Color.DarkGray),
+        contentAlignment = Alignment.Center
         ) {
         Column(
             modifier = Modifier
-                .fillMaxSize(),
+                .align(Alignment.TopCenter)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = name.value, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = name.value,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = data.value, fontSize = 18.sp)
+            Text(
+                text = data.value,
+                fontSize = 18.sp,
+                color = Color.White
+            )
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = time.value, fontSize = 12.sp)
+            Text(
+                text = time.value,
+                fontSize = 12.sp,
+                color = Color.White
+            )
+
             IconButton(
                 onClick = {
                     navController.popBackStack()
@@ -103,7 +124,8 @@ fun FullScreenForm(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(R.string.close),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.White
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))

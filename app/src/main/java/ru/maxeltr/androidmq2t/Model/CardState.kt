@@ -6,6 +6,7 @@ data class CardState(
     val subTopic: String = "",
     val subData: String = "",
     val subQos: Int = 0,
+    val subJsonpath: String = "",
     val pubTopic: String = "",
     val pubData: String = "",
     val pubQos: Int = 0,
