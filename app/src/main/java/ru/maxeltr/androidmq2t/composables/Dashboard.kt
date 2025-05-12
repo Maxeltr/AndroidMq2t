@@ -1,5 +1,6 @@
 package ru.maxeltr.androidmq2t.composables
 
+import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,8 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import ru.maxeltr.androidmq2t.R
 import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModel
 
 @Composable
@@ -72,6 +75,7 @@ fun CardRow(
                 data = viewModel.cards.getOrNull(index)?.subData ?: "",
                 name = viewModel.cards.getOrNull(index)?.name ?: "",
                 time = viewModel.cards.getOrNull(index)?.time ?: "",
+                bitmap = BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.tiger),
                 onEditClick = {
                     navController.navigate("editCardView/${viewModel.cards.getOrNull(index)?.id ?: "-1"}")    // TODO: If index is out of bounds, consider showing an error message or navigating to a default screen
                 },
@@ -99,6 +103,7 @@ fun CardRow(
                     data = viewModel.cards.getOrNull(index + 1)?.subData ?: "",
                     name = viewModel.cards.getOrNull(index + 1)?.name ?: "",
                     time = viewModel.cards.getOrNull(index + 1)?.time ?: "",
+                    bitmap = BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.tiger),
                     onEditClick = {
                         navController.navigate("editCardView/${viewModel.cards.getOrNull(index + 1)?.id ?: "-1"}")      // TODO: If index is out of bounds, consider showing an error message or navigating to a default screen
                     },

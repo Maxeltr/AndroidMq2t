@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -189,7 +190,13 @@ fun DrawerContent(onItemClick: (String) -> Unit) {
         TextButton(
             onClick = {
                 onItemClick(newCardString)
-            }
+            },
+            colors = ButtonDefaults.textButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.Black,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = Color.Gray,
+            )
         ) {
             Text(
                 stringResource(R.string.new_card),
@@ -205,7 +212,13 @@ fun DrawerContent(onItemClick: (String) -> Unit) {
         TextButton(
             onClick = {
                 onItemClick(connectionSettingsString)
-            }
+            },
+            colors = ButtonDefaults.textButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.Black,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = Color.Gray,
+            )
         ) {
             Text(
                 stringResource(R.string.connection_settings),

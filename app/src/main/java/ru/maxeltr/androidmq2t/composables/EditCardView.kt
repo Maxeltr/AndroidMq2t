@@ -1,5 +1,6 @@
 package ru.maxeltr.androidmq2t.composables
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import ru.maxeltr.androidmq2t.Model.CardState
+import ru.maxeltr.androidmq2t.Model.MediaType
 import ru.maxeltr.androidmq2t.R
 import ru.maxeltr.androidmq2t.utils.IdGenerator
 import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModel
@@ -51,6 +53,7 @@ fun EditCardView(id: Int, viewModel: Mq2tViewModel, navController: NavController
     val idState = remember { mutableIntStateOf(card.value.id) }
     val nameState = remember { mutableStateOf(card.value.name) }
     val subTopicState = remember { mutableStateOf(card.value.subTopic) }
+    val subDataTypeState = remember { mutableStateOf(card.value.subDataType) }
     val subQosState = remember { mutableIntStateOf(card.value.subQos) }
     val subJsonpathState = remember { mutableStateOf(card.value.subJsonpath) }
     val pubTopicState = remember { mutableStateOf(card.value.pubTopic) }
@@ -68,6 +71,7 @@ fun EditCardView(id: Int, viewModel: Mq2tViewModel, navController: NavController
             id = idState.value,
             name = nameState.value,
             subTopic = subTopicState.value,
+            subDataType = subDataTypeState.value,
             subQos = subQosState.intValue,
             subJsonpath = subJsonpathState.value,
             pubTopic = pubTopicState.value,
@@ -87,6 +91,7 @@ fun EditCardView(id: Int, viewModel: Mq2tViewModel, navController: NavController
     EditCardForm(
         nameState = nameState,
         subTopicState = subTopicState,
+        subDataTypeState = subDataTypeState,
         subQosState = subQosState,
         subJsonpathState = subJsonpathState,
         pubTopicState = pubTopicState,
@@ -104,6 +109,7 @@ fun EditCardView(id: Int, viewModel: Mq2tViewModel, navController: NavController
 fun EditCardForm(
     nameState: MutableState<String>,
     subTopicState: MutableState<String>,
+    subDataTypeState: MutableState<String>,
     subQosState: MutableState<Int>,
     subJsonpathState: MutableState<String>,
     pubTopicState: MutableState<String>,
@@ -150,14 +156,21 @@ fun EditCardForm(
                 label = stringResource(R.string.subscription_topic)
             )
 
+            if (MediaType.APPLICATION_JSON.type.equals(subDataTypeState.value, true)) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Mq2tTextField(
+                        subJsonpathState.value,
+                        onValueChange = { newValue ->
+                            subJsonpathState.value = newValue
+                        },
+                        label = stringResource(R.string.subscription_jsonpath)
+                    )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
-            Mq2tTextField(
-                subJsonpathState.value,
-                onValueChange = { newValue ->
-                    subJsonpathState.value = newValue
-                },
-                label = stringResource(R.string.subscription_jsonpath)
-            )
+            Box() {
+                Mq2tDropdownMenu(subDataTypeState, "Data type", "", MediaType.entries.map { it.type })
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
             Box() {
@@ -242,6 +255,7 @@ fun EditCardForm(
 fun EditCardViewPreview() {
     val nameState = remember { mutableStateOf("name test value") }
     val subTopicState = remember { mutableStateOf("subTopic/test/value") }
+    val subDataTypeState = remember { mutableStateOf("application/json") }
     val subQosState = remember { mutableStateOf(0) }
     val subJsonpathState = remember { mutableStateOf("sub jsonpath") }
     val pubTopicState = remember { mutableStateOf("pubTopic/test/value") }
@@ -252,6 +266,7 @@ fun EditCardViewPreview() {
     EditCardForm(
         nameState = nameState,
         subTopicState = subTopicState,
+        subDataTypeState = subDataTypeState,
         subQosState = subQosState,
         subJsonpathState = subJsonpathState,
         pubTopicState = pubTopicState,
@@ -299,6 +314,53 @@ fun Mq2tDropdownQosMenu (
                         text = {
                             Text(
                                 text = "$menuText $qos",
+                                color = Color.White
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Mq2tDropdownMenu (
+    state: MutableState<String>,
+    label: String,
+    menuText: String,
+    items: List<String>
+) {
+    val expanded = remember { mutableStateOf(false) }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = "$label ${state.value} ",
+            color = Color.White
+        )
+        Box() {
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = "Dropdown Arrow",
+                modifier = Modifier
+                    .clickable { expanded.value = true }
+                    .background(Color.Gray),
+                tint = Color.White
+            )
+            DropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false },
+                modifier = Modifier.background(Color.Gray)
+            ) {
+                items.forEach { value ->
+                    DropdownMenuItem(
+                        onClick = {
+                            state.value = value
+                            expanded.value = false
+                        },
+                        text = {
+                            Text(
+                                text = "$menuText $value",
                                 color = Color.White
                             )
                         }

@@ -5,6 +5,7 @@ data class CardState(
     val name: String = "",
     val subTopic: String = "",
     val subData: String = "",
+    val subDataType: String = "text/plain",
     val subQos: Int = 0,
     val subJsonpath: String = "",
     val pubTopic: String = "",
