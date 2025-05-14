@@ -1,6 +1,5 @@
 package ru.maxeltr.androidmq2t.composables
 
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,14 +12,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -34,13 +28,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,7 +47,7 @@ fun Card(
     data: String = "",
     name: String = "",
     time: String = "",
-    bitmap: Bitmap?,
+    image: ImageBitmap?,
     onEditClick: () -> Unit,
     onPublishClick: () -> Unit,
     onDeleteClick: () -> Unit,
@@ -66,7 +59,7 @@ fun Card(
     val editString = stringResource(R.string.edit)
     val deleteString = stringResource(R.string.delete)
     var expanded by remember { (mutableStateOf(false)) }
-    val backgroundImage: Painter = painterResource(id = R.drawable.tiger)
+        //val ibitmap: ImageBitmap? = remember(image) {image}
     Box(
         modifier = Modifier
             .background(Color.Gray)
@@ -83,20 +76,20 @@ fun Card(
                 )
             }
     ) {
-        bitmap?.let {
+        image?.let {
             Image(
-                bitmap = it.asImageBitmap(),
+                bitmap = it,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
-        }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.5f))
-        )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+            )
+        }
 
         Column(
             modifier = Modifier
@@ -212,7 +205,7 @@ fun CardPreview() {
         data = "data",
         name = "name",
         time = "10:00:00 23.04.2025",
-        bitmap = BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.tiger),
+        image = BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.tiger).asImageBitmap(),
         onEditClick = {},
         onPublishClick = {},
         onDeleteClick = {},

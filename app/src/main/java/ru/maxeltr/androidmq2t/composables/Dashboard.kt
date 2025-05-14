@@ -1,7 +1,5 @@
 package ru.maxeltr.androidmq2t.composables
 
-import android.graphics.BitmapFactory
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,10 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import ru.maxeltr.androidmq2t.R
+import ru.maxeltr.androidmq2t.Model.CardState
 import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModel
 
 @Composable
@@ -69,56 +66,16 @@ fun CardRow(
             modifier = Modifier
                 .weight(1f)
                 .padding(8.dp),
-
-            ) {
-            Card(
-                data = viewModel.cards.getOrNull(index)?.subData ?: "",
-                name = viewModel.cards.getOrNull(index)?.name ?: "",
-                time = viewModel.cards.getOrNull(index)?.time ?: "",
-                bitmap = BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.tiger),
-                onEditClick = {
-                    navController.navigate("editCardView/${viewModel.cards.getOrNull(index)?.id ?: "-1"}")    // TODO: If index is out of bounds, consider showing an error message or navigating to a default screen
-                },
-                onPublishClick = {
-                    viewModel.onPublishClick(
-                        viewModel.cards.getOrNull(index)?.id ?: -1
-                    )        // TODO: If index is out of bounds, consider showing an error message or navigating to a default screen
-                },
-                onDeleteClick = {
-                    viewModel.onDeleteClick(viewModel.cards.getOrNull(index)?.id ?: -1)
-                },
-                onCardClick = {
-                    navController.navigate("fullScreenView/${viewModel.cards.getOrNull(index)?.id ?: "-1"}")
-                }
-            )
+        ) {
+            CardTile(index, viewModel, navController)
         }
-
         if (index + 1 < amount) {
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .padding(8.dp),
             ) {
-                Card(
-                    data = viewModel.cards.getOrNull(index + 1)?.subData ?: "",
-                    name = viewModel.cards.getOrNull(index + 1)?.name ?: "",
-                    time = viewModel.cards.getOrNull(index + 1)?.time ?: "",
-                    bitmap = BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.tiger),
-                    onEditClick = {
-                        navController.navigate("editCardView/${viewModel.cards.getOrNull(index + 1)?.id ?: "-1"}")      // TODO: If index is out of bounds, consider showing an error message or navigating to a default screen
-                    },
-                    onPublishClick = {
-                        viewModel.onPublishClick(
-                            viewModel.cards.getOrNull(index + 1)?.id ?: -1
-                        )        // TODO: If index is out of bounds, consider showing an error message or navigating to a default screen
-                    },
-                    onDeleteClick = {
-                        viewModel.onDeleteClick(viewModel.cards.getOrNull(index + 1)?.id ?: -1)
-                    },
-                    onCardClick = {
-                        navController.navigate("fullScreenView/${viewModel.cards.getOrNull(index + 1)?.id ?: "-1"}")
-                    }
-                )
+                CardTile(index = index + 1, viewModel = viewModel, navController = navController)
             }
         } else {
             Box(
@@ -130,4 +87,34 @@ fun CardRow(
 
     }
 
+}
+
+@Composable
+fun CardTile(
+    index: Int,
+    viewModel: Mq2tViewModel,
+    navController: NavController
+) {
+    val cardState: CardState? = viewModel.cards.getOrNull(index)
+
+    Card(
+        data = cardState?.subData ?: "",
+        name = cardState?.name ?: "",
+        time = cardState?.time ?: "",
+        image = cardState?.subImagePreview,
+        onEditClick = {
+            navController.navigate("editCardView/${viewModel.cards.getOrNull(index)?.id ?: "-1"}")    // TODO: If index is out of bounds, consider showing an error message or navigating to a default screen
+        },
+        onPublishClick = {
+            viewModel.onPublishClick(
+                viewModel.cards.getOrNull(index)?.id ?: -1
+            )        // TODO: If index is out of bounds, consider showing an error message or navigating to a default screen
+        },
+        onDeleteClick = {
+            viewModel.onDeleteClick(viewModel.cards.getOrNull(index)?.id ?: -1)
+        },
+        onCardClick = {
+            navController.navigate("fullScreenView/${viewModel.cards.getOrNull(index)?.id ?: "-1"}")
+        }
+    )
 }

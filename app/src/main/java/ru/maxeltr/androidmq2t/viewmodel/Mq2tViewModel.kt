@@ -3,10 +3,16 @@ package ru.maxeltr.androidmq2t.viewmodel
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.content.edit
+import androidx.core.graphics.scale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -17,7 +23,6 @@ import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt3.Mqtt3ClientConfig
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
 import com.jayway.jsonpath.JsonPath
-
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -27,10 +32,10 @@ import org.json.JSONObject
 import ru.maxeltr.androidmq2t.Model.CardState
 import ru.maxeltr.androidmq2t.Model.ConnectionState
 import ru.maxeltr.androidmq2t.Model.MediaType
-import java.util.UUID
-import java.util.Calendar
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
+import java.util.UUID
 
 
 class Mq2tViewModel(private val application: Application) : ViewModel() {
@@ -88,7 +93,9 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
             }
 
             val jsonObject = gson.toJsonTree(cardState).asJsonObject
-            jsonObject.remove("subData")
+            jsonObject.remove("subData")        //TODO throw exception if properties were changed in CardState
+            jsonObject.remove("subImage")
+            jsonObject.remove("subImagePreview")
             jsonObject.remove("time")
             val json = gson.toJson(jsonObject)
 
@@ -161,20 +168,17 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
 
     fun updateCardState(message: Mqtt3Publish) {
         viewModelScope.launch {
-            mutex.withLock {
                 val currentStates = _cards.toList()
                 val updatedStates = currentStates.map { cardState ->
                     if (cardState.subTopic == message.topic.toString()) {
-                        Log.i(TAG, "Update card ${cardState.name} (id=${cardState.id}).")
+                        Log.i(TAG, "Update card on name=${cardState.name} (id=${cardState.id}).")
                         extractDataFromMessage(message, cardState)
-//                        cardState.copy(
-//                            subData = String(message.payloadAsBytes, Charsets.UTF_8),
-//                            time = dateFormat.format(System.currentTimeMillis())
-//                        )
+
                     } else {
                         cardState
                     }
                 }
+            mutex.withLock {
                 _cards.clear()
                 _cards.addAll(updatedStates)
             }
@@ -184,6 +188,7 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
     private fun extractDataFromMessage(message: Mqtt3Publish, cardState: CardState): CardState {
         var jsonObject: JsonObject? = null
         val messageString = String(message.payloadAsBytes, Charsets.UTF_8)
+        Log.i(TAG, "Message size is ${messageString.length}.")
 
         try {
             jsonObject = gson.fromJson(messageString, JsonObject::class.java)
@@ -201,7 +206,10 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
             type = MediaType.TEXT_PLAIN.type
         }
 
-        var data = ""
+        var data: String = ""
+        var image: ImageBitmap? = null
+        var preview: ImageBitmap? = null
+
         when {
             MediaType.APPLICATION_JSON.type.equals(type, ignoreCase = true) -> {
                 Log.d(TAG, "Data is set as json. Convert jsonObject to json string.")
@@ -216,7 +224,18 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
             }
             MediaType.IMAGE_JPEG.type.equals(type, ignoreCase = true) -> {
                 Log.d(TAG, "Data is set as image.")
-
+                //val bitmap = BitmapFactory.decodeResource(application.resources, R.drawable.tiger)
+                val decodedBytes: ByteArray? =
+                    Base64.decode(jsonObject.get("data").toString(), Base64.DEFAULT)
+                decodedBytes?.size?.let {
+                    if (it > 0) {
+                        val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                        bitmap?.let {
+                            preview = getResizedBitmap(bitmap, 150).asImageBitmap()     //TODO resolution move to ?
+                            image = bitmap.asImageBitmap()
+                        }
+                    }
+                }
             }
             MediaType.TEXT_PLAIN.type.equals(type, ignoreCase = true) -> {
                 Log.d(TAG, "Data is set as plain text.")
@@ -231,11 +250,39 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
             "n/a"
         }
 
+        Log.i(TAG, "Text data size is ${data.length}")
+
+        data = if (data.length > 256) {     //TODO max text size move to ?
+            Log.i(TAG, "Text size is too big. Trunk to ")
+            data.take(256) + "..."
+        } else {
+            data
+        }
+
+        Log.i(TAG, "Image size is ${image?.height?.times(image.width)?.times(4)}")
+
         return cardState.copy(
             subData = data,
+            subImage = image,
+            subImagePreview = preview,
             time = time
         )
 
+    }
+
+    fun getResizedBitmap(image: Bitmap, maxSize: Int): Bitmap {
+        var width = image.getWidth()
+        var height = image.getHeight()
+
+        val bitmapRatio = width.toFloat() / height.toFloat()
+        if (bitmapRatio > 1) {
+            width = maxSize
+            height = (width / bitmapRatio).toInt()
+        } else {
+            height = maxSize
+            width = (height * bitmapRatio).toInt()
+        }
+        return image.scale(width, height)
     }
 
     private fun parseJson(json: String, jsonPathExpression: String): String {
