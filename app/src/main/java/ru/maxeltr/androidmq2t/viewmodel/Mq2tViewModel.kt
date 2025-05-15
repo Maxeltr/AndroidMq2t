@@ -225,8 +225,12 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
             MediaType.IMAGE_JPEG.type.equals(type, ignoreCase = true) -> {
                 Log.d(TAG, "Data is set as image.")
                 //val bitmap = BitmapFactory.decodeResource(application.resources, R.drawable.tiger)
-                val decodedBytes: ByteArray? =
-                    Base64.decode(jsonObject.get("data").toString(), Base64.DEFAULT)
+                var decodedBytes: ByteArray? = null
+                try {
+                    decodedBytes = Base64.decode(jsonObject.get("data").toString(), Base64.DEFAULT)
+                } catch (e: IllegalArgumentException) {
+                    Log.i(TAG, "Could not decode base64.")
+                }
                 decodedBytes?.size?.let {
                     if (it > 0) {
                         val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
@@ -239,7 +243,7 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
             }
             MediaType.TEXT_PLAIN.type.equals(type, ignoreCase = true) -> {
                 Log.d(TAG, "Data is set as plain text.")
-                data = Gson().toJson(jsonObject)
+                data = jsonObject.get("data").asString
             }
             else -> Log.d(TAG, "Type is not supported. type=$type.")
         }
