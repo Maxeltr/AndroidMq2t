@@ -243,7 +243,7 @@ class Mq2tViewModel(private val application: Application) : ViewModel() {
             }
             MediaType.TEXT_PLAIN.type.equals(type, ignoreCase = true) -> {
                 Log.d(TAG, "Data is set as plain text.")
-                data = jsonObject.get("data").asString
+                data = jsonObject.get("data")?.asString ?: ""
             }
             else -> Log.d(TAG, "Type is not supported. type=$type.")
         }

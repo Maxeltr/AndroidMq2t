@@ -7,33 +7,21 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import ru.maxeltr.androidmq2t.R
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
-
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,24 +30,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import ru.maxeltr.androidmq2t.Model.CardState
-import ru.maxeltr.androidmq2t.Model.ConnectionState
-
-import ru.maxeltr.androidmq2t.utils.IdGenerator
+import ru.maxeltr.androidmq2t.R
 import ru.maxeltr.androidmq2t.viewmodel.Mq2tViewModel
-import kotlin.String
-import kotlin.math.log
 
 @Composable
 fun FullScreenView(
@@ -93,6 +73,7 @@ fun FullScreenForm(
     image: MutableState<ImageBitmap?>,
     navController: NavController
 ) {
+    var isNavigating = remember { mutableStateOf(false) }
     val initialScale = 1f
     var scale = remember { mutableFloatStateOf(initialScale) }
     var offsetX = remember { mutableFloatStateOf(0f) }
@@ -109,7 +90,10 @@ fun FullScreenForm(
             .background(Color.DarkGray)
             .pointerInput(Unit) {
                 detectTransformGestures { _, pan, zoom, _ ->
-                    Log.d("panAndZoom", "density=$density, screenWidth=$screenWidth, screenHeight=$screenHeight")
+                    Log.d(
+                        "panAndZoom",
+                        "density=$density, screenWidth=$screenWidth, screenHeight=$screenHeight"
+                    )
 
                     scale.floatValue = (scale.floatValue * zoom).coerceAtLeast(initialScale)
                     Log.d("panAndZoom", "scale=${scale.floatValue}")
@@ -119,7 +103,10 @@ fun FullScreenForm(
                         offsetY.floatValue += pan.y
 
 
-                        Log.d("panAndZoom", "offsetX=${offsetX.floatValue}, offsetY=${offsetY.floatValue}")
+                        Log.d(
+                            "panAndZoom",
+                            "offsetX=${offsetX.floatValue}, offsetY=${offsetY.floatValue}"
+                        )
 
 
                     }
@@ -178,8 +165,12 @@ fun FullScreenForm(
 
             IconButton(
                 onClick = {
-                    navController.popBackStack()
+                    if (!isNavigating.value) {
+                        isNavigating.value = true
+                        navController.popBackStack()
+                    }
                 },
+                enabled = !isNavigating.value,
                 modifier = Modifier
                     .size(56.dp)
                     .padding(16.dp)

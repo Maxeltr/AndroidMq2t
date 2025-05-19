@@ -38,6 +38,7 @@ fun EditConnectionView(viewModel: Mq2tViewModel, navController: NavController) {
     val port = remember { mutableStateOf(connection.value.port) }
     val username = remember { mutableStateOf(connection.value.username) }
     val password = remember { mutableStateOf(connection.value.password) }
+    var isNavigating = remember { mutableStateOf(false) }
 
     EditConnectionForm(
         host = host,
@@ -45,18 +46,24 @@ fun EditConnectionView(viewModel: Mq2tViewModel, navController: NavController) {
         username = username,
         password = password,
         onSave = {
-            connection.value = connection.value.copy(
-                host = host.value,
-                port = port.value,
-                username = username.value,
-                password = password.value,
-            )
-            viewModel.saveConnectionInPreferences(connection.value)
-            viewModel.reconnect()
-            navController.popBackStack()
+            if (!isNavigating.value) {
+                isNavigating.value = true
+                connection.value = connection.value.copy(
+                    host = host.value,
+                    port = port.value,
+                    username = username.value,
+                    password = password.value,
+                )
+                viewModel.saveConnectionInPreferences(connection.value)
+                viewModel.reconnect()
+                navController.popBackStack()
+            }
         },
         onCancel = {
-            navController.popBackStack()
+            if (!isNavigating.value) {
+                isNavigating.value = true
+                navController.popBackStack()
+            }
         },
     )
 

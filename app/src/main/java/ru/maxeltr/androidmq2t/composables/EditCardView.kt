@@ -60,32 +60,39 @@ fun EditCardView(id: Int, viewModel: Mq2tViewModel, navController: NavController
     val pubDataState = remember { mutableStateOf(card.value.pubData) }
     val pubQosState = remember { mutableIntStateOf(card.value.pubQos) }
     val pubRetainState = remember { mutableStateOf(card.value.pubRetain == true) }
+    var isNavigating = remember { mutableStateOf(false) }
 
     if (idState.intValue == -1) {
         idState.intValue = idGenerator.generateId()
     }
 
     val onSave = {
-        //TODO viewModel.unsubscribe(card.value.subTopic)
-        card.value = card.value.copy(
-            id = idState.value,
-            name = nameState.value,
-            subTopic = subTopicState.value,
-            subDataType = subDataTypeState.value,
-            subQos = subQosState.intValue,
-            subJsonpath = subJsonpathState.value,
-            pubTopic = pubTopicState.value,
-            pubData = pubDataState.value,
-            pubQos = pubQosState.intValue,
-            pubRetain = pubRetainState.value
-        )
-        viewModel.saveCardInPreferences(card.value)
-        viewModel.subscribe(subTopicState.value, subQosState.intValue)
-        navController.popBackStack()
+        if (!isNavigating.value) {
+            isNavigating.value = true
+            //TODO viewModel.unsubscribe(card.value.subTopic)
+            card.value = card.value.copy(
+                id = idState.value,
+                name = nameState.value,
+                subTopic = subTopicState.value,
+                subDataType = subDataTypeState.value,
+                subQos = subQosState.intValue,
+                subJsonpath = subJsonpathState.value,
+                pubTopic = pubTopicState.value,
+                pubData = pubDataState.value,
+                pubQos = pubQosState.intValue,
+                pubRetain = pubRetainState.value
+            )
+            viewModel.saveCardInPreferences(card.value)
+            viewModel.subscribe(subTopicState.value, subQosState.intValue)
+            navController.popBackStack()
+        }
     }
 
     val onCancel = {
-        navController.popBackStack()
+        if (!isNavigating.value) {
+            isNavigating.value = true
+            navController.popBackStack()
+        }
     }
 
     EditCardForm(
